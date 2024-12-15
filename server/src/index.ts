@@ -2,11 +2,15 @@ import "dotenv/config"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 
-import express, { Request, Response } from "express"
-
 import { config } from "./config/app.config"
+import { HTTPSTATUS } from "./config/http.config"
+
+import express, { NextFunction, Request, Response } from "express"
 
 import connectDatabase from "./database/database"
+
+import { errorHandler } from "./middlewares/errorHandler"
+import { asyncHandler } from "./middlewares/asyncHandler"
 
 const app = express()
 
@@ -21,11 +25,17 @@ app.use(
 
 app.use(cookieParser())
 
-app.get("/", (req: Request, res: Response) => {
-  res.status(200).json({
-    message: "Server started successfully",
+app.get(
+  "/",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    res.status(HTTPSTATUS.OK).json({
+      message: "Server started successfully",
+    })
   })
-})
+)
+
+app.use(errorHandler)
 
 app.listen(config.PORT, async () => {
   console.log(`Server listening on port ${config.PORT} in ${config.NODE_ENV}`)
