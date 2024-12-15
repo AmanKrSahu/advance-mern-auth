@@ -1,7 +1,25 @@
-import { ErrorRequestHandler } from "express"
+import { z } from "zod"
+
+import { ErrorRequestHandler, Response } from "express"
 
 import { HTTPSTATUS } from "../config/http.config"
 import { AppError } from "../common/utils/AppError"
+import {
+  clearAuthenticationCookies,
+  REFRESH_PATH,
+} from "../common/utils/cookie"
+
+const formatZodError = (res: Response, error: z.ZodError) => {
+  const errors = error?.issues?.map((err) => ({
+    field: err.path.join("."),
+    message: err.message,
+  }))
+
+  return res.status(HTTPSTATUS.BAD_REQUEST).json({
+    message: "Validation failed",
+    errors: errors,
+  })
+}
 
 export const errorHandler: ErrorRequestHandler = (
   error,
@@ -22,6 +40,14 @@ export const errorHandler: ErrorRequestHandler = (
       message: error.message,
       errorCode: error.errorCode,
     })
+  }
+
+  if (error instanceof z.ZodError) {
+    return formatZodError(res, error)
+  }
+
+  if (req.path === REFRESH_PATH) {
+    clearAuthenticationCookies(res)
   }
 
   return res.status(HTTPSTATUS.INTERNAL_SERVER_ERROR).json({
