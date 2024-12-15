@@ -1,8 +1,12 @@
 import "dotenv/config"
 import cors from "cors"
-import express, { Request, Response } from "express"
 import cookieParser from "cookie-parser"
+
+import express, { Request, Response } from "express"
+
 import { config } from "./config/app.config"
+
+import connectDatabase from "./database/database"
 
 const app = express()
 
@@ -25,4 +29,5 @@ app.get("/", (req: Request, res: Response) => {
 
 app.listen(config.PORT, async () => {
   console.log(`Server listening on port ${config.PORT} in ${config.NODE_ENV}`)
+  await connectDatabase()
 })
