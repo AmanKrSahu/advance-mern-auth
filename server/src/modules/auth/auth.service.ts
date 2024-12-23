@@ -19,6 +19,9 @@ import {
 
 import { config } from "../../config/app.config"
 
+import { sendEmail } from "../../mailers/mailer"
+import { verifyEmailTemplate } from "../../mailers/templates/template"
+
 import UserModel from "../../database/models/user.model"
 import SessionModel from "../../database/models/session.model"
 import VerificationCodeModel from "../../database/models/verification.model"
@@ -46,14 +49,17 @@ export class AuthService {
 
     const userId = newUser._id
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const verification = await VerificationCodeModel.create({
       userId,
       type: VerificationEnum.EMAIL_VERIFICATION,
       expiresAt: fortyFiveMinutesFromNow(),
     })
 
-    // Sending verification email link
+    const verificationUrl = `${config.APP_ORIGIN}/confirm-account?code=${verification.code}`
+    await sendEmail({
+      to: newUser.email,
+      ...verifyEmailTemplate(verificationUrl),
+    })
 
     return {
       user: newUser,
