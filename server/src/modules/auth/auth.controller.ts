@@ -4,6 +4,7 @@ import { HTTPSTATUS } from "../../config/http.config"
 import {
   loginSchema,
   registerSchema,
+  verificationEmailSchema,
 } from "../../common/validators/auth.validator"
 import { UnauthorizedException } from "../../common/utils/catch-errors"
 import {
@@ -90,6 +91,19 @@ export class AuthController {
         .json({
           message: "Refresh access token successfully",
         })
+    }
+  )
+
+  public verifyEmail = asyncHandler(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (req: Request, res: Response): Promise<any> => {
+      const { code } = verificationEmailSchema.parse(req.body)
+
+      await this.authService.verifyEmail(code)
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: "Email verified successfully",
+      })
     }
   )
 }

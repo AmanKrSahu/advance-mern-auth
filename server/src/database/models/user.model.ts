@@ -40,6 +40,10 @@ const userSchema = new Schema<UserDocument>(
       type: String,
       required: true,
     },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
     userPreferences: {
       type: userPreferencesSchema,
       default: {},
