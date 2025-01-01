@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 
 import { HTTPSTATUS } from "../../config/http.config"
 import {
+  emailSchema,
   loginSchema,
   registerSchema,
   verificationEmailSchema,
@@ -103,6 +104,19 @@ export class AuthController {
 
       return res.status(HTTPSTATUS.OK).json({
         message: "Email verified successfully",
+      })
+    }
+  )
+
+  public forgotPassword = asyncHandler(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (req: Request, res: Response): Promise<any> => {
+      const email = emailSchema.parse(req.body.email)
+
+      await this.authService.forgotPassword(email)
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: "Password reset email sent",
       })
     }
   )

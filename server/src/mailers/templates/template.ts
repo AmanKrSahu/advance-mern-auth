@@ -180,7 +180,6 @@ export const passwordResetTemplate = (
             <h1>Reset Your Password</h1>
             <p>We received a request to reset your password. Click the button below to proceed with resetting your password.</p>
             <a href="${url}" class="button">Reset Password</a>
-            <p>If you did not request a password reset, you can safely ignore this email.</p>
           </div>
           <div class="footer">
             <p>If you have any questions, feel free to reply to this email or contact our support team.</p>
