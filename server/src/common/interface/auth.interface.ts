@@ -11,3 +11,8 @@ export interface LoginData {
   password: string
   userAgent?: string
 }
+
+export interface resetPasswordData {
+  password: string
+  verificationCode: string
+}

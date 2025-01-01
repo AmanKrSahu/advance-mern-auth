@@ -1,6 +1,8 @@
-import { ErrorCode } from "../../common/enums/error-code.enum"
-import { VerificationEnum } from "../../common/enums/verification-code.enum"
-import { LoginData, registerData } from "../../common/interface/auth.interface"
+import {
+  LoginData,
+  registerData,
+  resetPasswordData,
+} from "../../common/interface/auth.interface"
 import {
   anHourFromNow,
   calculateExpirationDate,
@@ -21,6 +23,9 @@ import {
   signJwtToken,
   verifyJwtToken,
 } from "../../common/utils/jwt"
+import { hashValue } from "../../common/utils/bcrypt"
+import { ErrorCode } from "../../common/enums/error-code.enum"
+import { VerificationEnum } from "../../common/enums/verification-code.enum"
 
 import { config } from "../../config/app.config"
 import { HTTPSTATUS } from "../../config/http.config"
@@ -256,6 +261,41 @@ export class AuthService {
     return {
       url: resetLink,
       emailId: data.id,
+    }
+  }
+
+  public async resetPassword({
+    password,
+    verificationCode,
+  }: resetPasswordData) {
+    const validCode = await VerificationCodeModel.findOne({
+      code: verificationCode,
+      type: VerificationEnum.PASSWORD_RESET,
+      expiresAt: { $gt: new Date() },
+    })
+
+    if (!validCode) {
+      throw new NotFoundException("Invalid or expired verification code")
+    }
+
+    const hashedPassword = await hashValue(password)
+
+    const updatedUser = await UserModel.findByIdAndUpdate(validCode.userId, {
+      password: hashedPassword,
+    })
+
+    if (!updatedUser) {
+      throw new BadRequestException("Failed to reset password!")
+    }
+
+    await validCode.deleteOne()
+
+    await SessionModel.deleteMany({
+      userId: updatedUser._id,
+    })
+
+    return {
+      user: updatedUser,
     }
   }
 }
