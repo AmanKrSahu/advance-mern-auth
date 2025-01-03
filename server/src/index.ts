@@ -9,6 +9,8 @@ import { HTTPSTATUS } from "./config/http.config"
 import connectDatabase from "./database/database"
 
 import authRoutes from "./modules/auth/auth.routes"
+
+import passport from "./middlewares/passport"
 import { errorHandler } from "./middlewares/errorHandler"
 import { asyncHandler } from "./middlewares/asyncHandler"
 
@@ -25,6 +27,8 @@ app.use(
 )
 
 app.use(cookieParser())
+
+app.use(passport.initialize())
 
 app.get(
   "/",
