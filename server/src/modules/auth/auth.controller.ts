@@ -8,7 +8,10 @@ import {
   resetPasswordSchema,
   verificationEmailSchema,
 } from "../../common/validators/auth.validator"
-import { UnauthorizedException } from "../../common/utils/catch-errors"
+import {
+  NotFoundException,
+  UnauthorizedException,
+} from "../../common/utils/catch-errors"
 import {
   clearAuthenticationCookies,
   getAccessTokenCookieOptions,
@@ -132,6 +135,20 @@ export class AuthController {
 
       return clearAuthenticationCookies(res).status(HTTPSTATUS.OK).json({
         message: "Reset Password successfully",
+      })
+    }
+  )
+
+  public logout = asyncHandler(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (req: Request, res: Response): Promise<any> => {
+      const sessionId = req.sessionId
+      if (!sessionId) {
+        throw new NotFoundException("Session is invalid.")
+      }
+      await this.authService.logout(sessionId)
+      return clearAuthenticationCookies(res).status(HTTPSTATUS.OK).json({
+        message: "User logout successfully",
       })
     }
   )
